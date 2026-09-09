@@ -25,8 +25,14 @@ export const campaignFormSchema = z
       ),
     payoutPer1kViewsCents: centsSchema,
     totalBudgetCents: centsSchema,
-    startsAt: z.iso.datetime({ offset: true, error: "Enter a valid date and time." }),
-    endsAt: z.iso.datetime({ offset: true, error: "Enter a valid date and time." }),
+    startsAt: z.iso.datetime({
+      offset: true,
+      error: "Enter a valid date and time.",
+    }),
+    endsAt: z.iso.datetime({
+      offset: true,
+      error: "Enter a valid date and time.",
+    }),
   })
   .refine((value) => Date.parse(value.endsAt) > Date.parse(value.startsAt), {
     path: ["endsAt"],

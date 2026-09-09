@@ -268,6 +268,57 @@ describe("budget and reviews", () => {
     await assertAccounting(parent.id);
   });
 
+  test("two approvals of the same submission reserve its earnings only once", async () => {
+    const parent = await campaign({ totalBudgetCents: 2000 });
+    const clip = await submission(parent);
+    const adminA = await caller(0),
+      adminB = await caller(1);
+    const results = await race(parent.id, [
+      () => adminA.submission.approve({ submissionId: clip.id }),
+      () => adminB.submission.approve({ submissionId: clip.id }),
+    ]);
+    expect(
+      results.filter((result) => result.status === "fulfilled"),
+    ).toHaveLength(1);
+    expect(
+      results.find((result) => result.status === "rejected"),
+    ).toMatchObject({
+      reason: { cause: { data: { code: "SUBMISSION_ALREADY_REVIEWED" } } },
+    });
+    expect((await assertAccounting(parent.id)).budgetAllocatedCents).toBe(700);
+  });
+
+  test("a budget edit and approval share the lock without losing either allocation or version", async () => {
+    const parent = await campaign();
+    const clip = await submission(parent);
+    const admin = await caller(0);
+    const results = await race<unknown>(parent.id, [
+      () =>
+        admin.campaign.update({
+          id: parent.id,
+          expectedVersion: parent.version,
+          title: parent.title,
+          platforms: parent.platforms,
+          payoutPer1kViewsCents: parent.payoutPer1kViewsCents,
+          totalBudgetCents: 1400,
+          startsAt: new Date(parent.startsAt).toISOString(),
+          endsAt: new Date(parent.endsAt).toISOString(),
+        }),
+      () => admin.submission.approve({ submissionId: clip.id }),
+    ]);
+    expect(results[1].status).toBe("fulfilled");
+    const updated = await assertAccounting(parent.id);
+    expect(updated.budgetAllocatedCents).toBe(700);
+    if (results[0].status === "fulfilled") {
+      expect(updated).toMatchObject({ totalBudgetCents: 1400, version: 3 });
+    } else {
+      expect(results[0]).toMatchObject({
+        reason: { cause: { data: { code: "STALE_CAMPAIGN" } } },
+      });
+      expect(updated).toMatchObject({ totalBudgetCents: 1000, version: 2 });
+    }
+  });
+
   test("campaign edits cannot change financial terms once submissions exist", async () => {
     const parent = await campaign();
     await submission(parent);
