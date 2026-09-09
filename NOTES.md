@@ -1,5 +1,7 @@
 # Implementation notes
 
+Live demo: https://wavy-case.onrender.com (fictional accounts and payments).
+
 ## Run locally
 
 Requirements: Node 24 (see `.nvmrc`), Docker with Compose, and pnpm 10.34.5 (`npm install -g pnpm@10.34.5`).
@@ -71,6 +73,10 @@ Use one Render Node web service for Next.js and tRPC, with Supabase PostgreSQL. 
 2. With `DATABASE_URL` set privately to the hosted database, run `pnpm db:migrate` and `pnpm db:seed` once before enabling the live app. Migrations and seed are separate from builds/restarts. Render's free web service does not provide a paid pre-deploy command, so run migrations explicitly before subsequent manual deploys too.
 3. Create a Blueprint from `render.yaml`. Supply `DATABASE_URL`. On Render, `APP_URL` defaults to its automatically assigned HTTPS service URL (`RENDER_EXTERNAL_URL`); set `APP_URL` explicitly if using a custom domain. The Blueprint generates `SESSION_SECRET`; leave `DEMO_MODE=true` only for fictional review data.
 4. Deploy, then smoke-test both roles, submission/review and budget errors. Run `pnpm ingest` from a trusted machine with the hosted `DATABASE_URL` when needed. Do not point integration tests at Supabase.
+
+Hosted checks passed for both roles, creator ownership, submission/initial metrics, duplicate URLs and competing approvals over HTTPS. Two hosted ingest runs produced identical database state after the first run.
+
+For this checkout, hosted credentials are stored in the ignored `.env.hosted` file. Run hosted ingest with `node --env-file=.env.hosted --import tsx scripts/ingest.ts`; ordinary `pnpm ingest` keeps using the local `.env` database.
 
 Free hosting can sleep; allow the first request time to start. See [Render deployment commands](https://render.com/docs/deploys) and [Supabase connection options](https://supabase.com/docs/guides/database/connecting-to-postgres).
 

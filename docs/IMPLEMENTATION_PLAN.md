@@ -1,6 +1,6 @@
 # Mimari, teknoloji ve uygulama planı
 
-Durum: Yerel uygulama, migration, seed, domain/DB testleri ve tarayıcı kontrolleri uygulandı. Kullanıcı planın uygulanmasına yetki verdi. K1/K2 ve açık DEMO_MODE kararı kodda mevcut. Canlı yayın ayrı doğrulama aşamasındadır; kurulum ve teslim notları NOTES.md içindedir.
+Durum: Yerel uygulama, migration, seed, domain/DB testleri ve tarayıcı kontrolleri uygulandı. Kullanıcı planın uygulanmasına yetki verdi. K1/K2 ve açık DEMO_MODE kararı kodda mevcut. Canlı yayın Render + Supabase üzerinde tamamlandı: https://wavy-case.onrender.com. Canlı tRPC akışlarında yetki, ownership, submit, duplicate ve eşzamanlı onay/bütçe hatası doğrulandı; kurulum ve teslim notları NOTES.md içindedir.
 
 ## 1. Yaklaşım
 
