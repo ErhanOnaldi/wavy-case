@@ -15,7 +15,5 @@ services:
         sync: false
       - key: SESSION_SECRET
         generateValue: true
-      - key: APP_URL
-        sync: false
       - key: DEMO_MODE
         value: "true"
